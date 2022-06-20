@@ -2,4 +2,5 @@ package core
 
 const (
 	BinanceChain = "0x465661625B3B96b102a49e07E2Eb31cC9F5cE58B"
+	CeloChain = "0x7F4e475462A0fA0F1e2C69d50866D54505F99D72"
 )
