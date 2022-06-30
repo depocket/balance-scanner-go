@@ -50,3 +50,16 @@ func (_BalanceScanner *BalanceScanner) GetBalances(opts *bind.CallOpts, account 
 
 	return out0, err
 }
+
+
+func (_BalanceScanner *BalanceScanner) TokenMapBalances(address common.Address, tokens []common.Address) (map[string]*big.Int, error) {
+	balances := make(map[string]*big.Int)
+	res, err := _BalanceScanner.GetBalances(&bind.CallOpts{}, address, tokens)
+	if err != nil {
+		return balances, nil
+	}
+	for i, token := range tokens {
+		balances[strings.ToLower(token.String())] = res[i]
+	}
+	return balances, nil
+}
