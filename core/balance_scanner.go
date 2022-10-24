@@ -120,6 +120,37 @@ func (_BalanceScanner *BalanceScanner) BatchCallBalances(account common.Address,
 	return res, nil
 }
 
+func (_BalanceScanner *BalanceScanner) BatchCallBalancesWithContext(ctx context.Context, account common.Address, tokenChunks [][]common.Address) ([]*big.Int, error) {
+	var res []*big.Int
+	var calls []rpc.BatchElem
+	var callSize = len(tokenChunks)
+	var callResults = make([]hexutil.Bytes, callSize)
+	for index, chunk := range tokenChunks {
+		callData, err := _BalanceScanner.GetBalancesCallData(account, chunk)
+		if err != nil {
+			return []*big.Int{}, err
+		}
+		elem := rpc.BatchElem {
+			Method: "eth_call",
+			Args: toCallArgs(ethereum.CallMsg{To: &_BalanceScanner.ContractAddress, Data: callData}),
+			Result: &callResults[index],
+		}
+		calls = append(calls, elem)
+	}
+	err := _BalanceScanner.RpcClient.BatchCallContext(ctx, calls)
+	if err != nil {
+		return []*big.Int{}, err
+	}
+	for _, result := range callResults {
+		r, err := _BalanceScanner.DecodeCallResponse(result)
+		if err != nil {
+			return []*big.Int{}, err
+		}
+		res = append(res, r[0].([]*big.Int)...)
+	}
+	return res, nil
+}
+
 func toCallArgs(msg ethereum.CallMsg) []interface{} {
 	arg := []interface{}{CallArg{
 		To:       *msg.To,
