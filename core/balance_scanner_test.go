@@ -1,10 +1,11 @@
 package core
 
 import (
+	"context"
 	"fmt"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/ethclient"
-	"github.com/ethereum/go-ethereum/rpc"
+	"github.com/himitsuko/ethclient/ethclient"
+	"github.com/himitsuko/ethclient/rpc"
 	"github.com/stretchr/testify/assert"
 	"strings"
 	"testing"
@@ -30,9 +31,21 @@ func TestBalanceScanner_TokenMapBalances(t *testing.T) {
 	assert.Equal(t, balances[strings.ToLower("0x7d99eda556388Ad7743A1B658b9C4FC67D7A9d74")].String(), "34000000000000000000")
 }
 
+type log struct {
+}
+
+func (receiver log) Errorf(fm string, params ...interface{}) {
+	fmt.Printf("lolol")
+	fmt.Printf(fm, params...)
+}
+
+func (receiver log) Infof(fm string, params ...interface{}) {
+	fmt.Printf(fm, params...)
+}
+
 func TestBalanceScanner_BatchCall(t *testing.T) {
-	client, _ := ethclient.Dial("https://bsc-dataseed.binance.org/")
-	r, _ := rpc.Dial("https://bsc-dataseed.binance.org/")
+	r, _ := rpc.DialOptions(context.TODO(), "https://bsc-dataseed.binance.org/", rpc.WithDebug(true), rpc.WithLogger(log{}))
+	client := ethclient.NewClient(r)
 	bep20, _ := NewBalanceScanner(BinanceChain, client, r)
 	resultCount := 0
 	ret, _ := bep20.BatchCallBalances(common.HexToAddress("0x7d99eda556388Ad7743A1B658b9C4FC67D7A9d74"), [][]common.Address{

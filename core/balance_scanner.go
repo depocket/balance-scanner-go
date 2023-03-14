@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common/hexutil"
-	"github.com/ethereum/go-ethereum/ethclient"
-	"github.com/ethereum/go-ethereum/rpc"
+	"github.com/himitsuko/ethclient/ethclient"
+	"github.com/himitsuko/ethclient/rpc"
 	"math/big"
 	"strings"
 
@@ -55,7 +55,6 @@ func NewBalanceScanner(address string, client *ethclient.Client, rpcClient *rpc.
 		ContractAddress: common.HexToAddress(address),
 	}, nil
 }
-
 
 /*
 	GetBalances query the ERC20 token balances in batch
